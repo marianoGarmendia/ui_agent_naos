@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  height: 100dvh;
+}
+
+#root {
+  height: 100dvh;
+}
+
+/* Scrollbar del textarea */
+
+::-webkit-scrollbar {
+  margin: 0 2px;
+  width: 4px; /* Ancho de la scrollbar */
+  background-color: transparent; /* Color de fondo */
+}
+
+.scroll_chat::-webkit-scrollbar {
+  display: none; /* Color de fondo */
+}
+
+::-webkit-scrollbar-thumb {
+  margin: 0 2px;
+  background-color: #808080; /* Color de la barra de desplazamiento */
+  border-radius: 4px; /* Esquinas redondeadas */
+}
+
+.textarea-scrollbar {
+  width: 100%;
+  /* height: 200px;  */
+  /* padding: 10px; */
+  resize: vertical; /* Si prefieres, puedes usar 'none' o 'horizontal' */
+  overflow: auto; /* Asegura que la barra de scroll aparezca cuando sea necesario */
+
+  /* Estilo del scrollbar en navegadores WebKit (Chrome, Safari, Edge) */
+}
