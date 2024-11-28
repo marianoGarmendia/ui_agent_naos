@@ -21,7 +21,7 @@ function App() {
     setMessageUser("");
 
     const response = await fetch(
-      "https://web-production-af3f.up.railway.app/api/agent",
+      "https://api-agent-naos.onrender.com/api/agent",
       {
         method: "POST",
         headers: {
