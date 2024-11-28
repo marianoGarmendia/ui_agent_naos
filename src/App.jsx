@@ -20,16 +20,19 @@ function App() {
     setMessage((prevMessage) => [...prevMessage, UserMessage]);
     setMessageUser("");
 
-    const response = await fetch("http://localhost:5000/api/agent", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        message: UserMessage.content,
-        threadId: idUnico.current,
-      }),
-    });
+    const response = await fetch(
+      "https://web-production-af3f.up.railway.app/api/agent",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: UserMessage.content,
+          threadId: idUnico.current,
+        }),
+      }
+    );
     if (!response.ok) {
       throw new Error("Error al enviar el mensaje");
     }
