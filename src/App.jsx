@@ -4,6 +4,18 @@ import Loading from "./components/Loading";
 import { twMerge } from "tailwind-merge";
 import { v4 as uuidv4 } from "uuid";
 
+// const Message = {
+//   "nombre del producto": "Gazelle Pre Entreno",
+//   precio_actual: "$37,990",
+//   precio_anterior: "$39,990",
+//   url_al_producto: "https://naoskingdom.com/products/gazelle-pre-entreno",
+//   url_de_la_imagen_del_producto: null,
+//   tool_call_id: "naos_kingdom_productos",
+// };
+
+const urlDev = "http://localhost:8080/api/agent";
+// const urlProd = "https://api-agent-naos.onrender.com/api/agent";
+
 function App() {
   const [messageUser, setMessageUser] = useState("");
   const [message, setMessage] = useState([]);
@@ -20,30 +32,47 @@ function App() {
     setMessage((prevMessage) => [...prevMessage, UserMessage]);
     setMessageUser("");
 
-    const response = await fetch(
-      "https://api-agent-naos.onrender.com/api/agent",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: UserMessage.content,
-          threadId: idUnico.current,
-        }),
-      }
-    );
+    const response = await fetch(`${urlDev}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message: UserMessage.content,
+        threadId: idUnico.current,
+      }),
+    });
     if (!response.ok) {
       throw new Error("Error al enviar el mensaje");
     }
     const responseAgent = await response.json();
 
-    const AImessage = {
-      role: "AI",
-      content: responseAgent["message"],
-    };
+    const evaluateMessage = (msg) => {
+      if (responseAgent["message"].startsWith("{")) {
+        // const productToolReponse = JSON.parse(responseAgent["message"]);
+        let resValido = JSON.parse(responseAgent["message"]);
+        console.log(typeof resValido);
+        if (resValido.tool_call_id === "naos_kingdom_productos") {
+          const AImessage = {
+            role: "AI",
+            content: resValido,
+          };
+          console.log("after tool call id naos");
 
-    setMessage((prevMessage) => [...prevMessage, AImessage]);
+          return AImessage;
+        }
+      } else {
+        const AImessage = {
+          role: "AI",
+          content: msg,
+        };
+
+        return AImessage;
+      }
+    };
+    const AgentMessage = evaluateMessage(responseAgent["message"]);
+
+    setMessage((prevMessage) => [...prevMessage, AgentMessage]);
   };
   const handleInvoke = (e) => {
     e.preventDefault();
@@ -97,20 +126,48 @@ function App() {
             {message &&
               message.length > 0 &&
               message.map((msg, index) => {
-                return (
-                  <div
-                    key={index}
-                    className={twMerge(
-                      "flex gap-2 w-fit p-2 ",
-                      className[msg.role]
-                    )}
-                  >
-                    <span className="rounded-full h-fit p-[2px] bg-[#eee]">
-                      {msg.role === "AI" ? "🤖" : "🐧"}
-                    </span>
-                    <p className="whitespace-pre-wrap">{msg.content}</p>
-                  </div>
-                );
+                if (
+                  msg.content.tool_call_id &&
+                  msg.content.tool_call_id === "naos_kingdom_productos"
+                ) {
+                  console.log("msg", msg.content);
+                  return (
+                    <div
+                      key={index + "-" + msg.content.nombre_del_producto}
+                      className="flex flex-col gap-2 justify-center items-start p-2"
+                    >
+                      <span>{msg.content.nombre_del_producto}</span>
+                      <span>Precio: {msg.content.precio_actual}</span>
+                      <span>
+                        Precio anterior: {msg.content.precio_anterior ?? "--"}
+                      </span>
+                      <span>
+                        Míralo en la web
+                        <a
+                          className="px-2 text-blue-500 hover:text-blue-700 font-bold"
+                          href={msg.content.url_al_producto}
+                        >
+                          Aqui
+                        </a>{" "}
+                      </span>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <div
+                      key={index}
+                      className={twMerge(
+                        "flex gap-2 w-fit p-2 ",
+                        className[msg.role]
+                      )}
+                    >
+                      <span className="rounded-full h-fit p-[2px] bg-[#eee]">
+                        {msg.role === "AI" ? "🤖" : "🐧"}
+                      </span>
+                      <p className="whitespace-pre-wrap">{msg.content}</p>
+                    </div>
+                  );
+                }
               })}
             {message.length > 0 && loading && <Loading></Loading>}
           </div>
