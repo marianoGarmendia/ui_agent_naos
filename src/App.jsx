@@ -13,8 +13,8 @@ import { v4 as uuidv4 } from "uuid";
 //   tool_call_id: "naos_kingdom_productos",
 // };
 
-const urlDev = "http://localhost:8080/api/agent";
-// const urlProd = "https://api-agent-naos.onrender.com/api/agent";
+// const urlDev = "http://localhost:8080/api/agent";
+const urlProd = "https://api-agent-naos.onrender.com/api/agent";
 
 function App() {
   const [messageUser, setMessageUser] = useState("");
@@ -32,7 +32,7 @@ function App() {
     setMessage((prevMessage) => [...prevMessage, UserMessage]);
     setMessageUser("");
 
-    const response = await fetch(`${urlDev}`, {
+    const response = await fetch(`${urlProd}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
